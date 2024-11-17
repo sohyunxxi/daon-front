@@ -1,100 +1,104 @@
 import Image from "next/image";
+import Link from "next/link";
+
+// 임시 데이터
+const volunteerActivities = [
+  {
+    id: 1,
+    title: "지역 공원 청소 봉사",
+    location: "서울시 강남구",
+    date: "2024-04-01",
+    participants: 5,
+    maxParticipants: 10,
+  },
+  {
+    id: 2,
+    title: "노인복지관 급식 봉사",
+    location: "서울시 송파구",
+    date: "2024-04-03",
+    participants: 3,
+    maxParticipants: 8,
+  },
+  // ... 더 많은 임시 데이터
+];
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gray-50">
+      {/* 네비게이션 바 */}
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center">
+            <h1 className="text-2xl font-bold text-blue-600">다온</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="text-gray-600 hover:text-gray-900">로그인</Link>
+            <Link href="/signup" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              회원가입
+            </Link>
+          </div>
         </div>
+      </nav>
+
+      {/* 메인 섹션 */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 히어로 섹션 */}
+        <section className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            함께하는 봉사활동의 시작
+          </h2>
+          <p className="text-xl text-gray-600 mb-8">
+            다온과 함께 의미있는 변화를 만들어보세요
+          </p>
+          <Link href="/volunteer/create" 
+            className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 inline-block">
+            봉사활동 등록하기
+          </Link>
+        </section>
+
+        {/* 봉사활동 목록 */}
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-semibold text-gray-900">진행중인 봉사활동</h3>
+            <Link href="/volunteer/list" className="text-blue-600 hover:text-blue-800">
+              전체보기 →
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {volunteerActivities.map((activity) => (
+              <div key={activity.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">{activity.title}</h4>
+                <div className="text-gray-600 space-y-2">
+                  <p>📍 {activity.location}</p>
+                  <p>📅 {activity.date}</p>
+                  <p>👥 {activity.participants}/{activity.maxParticipants}명</p>
+                </div>
+                <Link href={`/volunteer/${activity.id}`}
+                  className="mt-4 block text-center bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200">
+                  자세히 보기
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* 푸터 */}
+      <footer className="bg-gray-100 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-between items-center">
+            <div className="text-gray-600">
+              <h3 className="font-bold text-lg mb-2">다온</h3>
+              <p>함께하는 봉사활동 커뮤니티</p>
+            </div>
+            <div className="flex gap-6">
+              <Link href="/about" className="text-gray-600 hover:text-gray-900">소개</Link>
+              <Link href="/terms" className="text-gray-600 hover:text-gray-900">이용약관</Link>
+              <Link href="/privacy" className="text-gray-600 hover:text-gray-900">개인정보처리방침</Link>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

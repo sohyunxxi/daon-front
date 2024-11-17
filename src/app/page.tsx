@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 // 임시 데이터

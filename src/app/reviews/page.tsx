@@ -1,7 +1,21 @@
+'use client'
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 import Link from "next/link";
 
-// 임시 후기 데이터
-const volunteerReviews = [
+// 타입 정의
+interface Review {
+  id: number;
+  title: string;
+  author: string;
+  date: string;
+  location: string;
+  likes: number;
+  preview: string;
+}
+
+// 임시 데이터
+const initialReviews = [
   {
     id: 1,
     title: "노인복지관에서의 특별한 하루",
@@ -19,20 +33,54 @@ const volunteerReviews = [
     location: "서울시 강남구",
     likes: 23,
     preview: "우리 동네 공원을 깨끗하게 만드는데 동참할 수 있어서 뿌듯했습니다..."
-  },
-  {
-    id: 3,
-    title: "유기동물 보호소 봉사 이야기",
-    author: "박하늘",
-    date: "2024-03-22",
-    location: "서울시 마포구",
-    likes: 45,
-    preview: "작은 생명들을 돌보는 시간이 저에게도 큰 위로가 되었습니다..."
-  },
-  // ... 더 많은 임시 데이터
+  }
 ];
 
 export default function ReviewsPage() {
+  const [reviews, setReviews] = useState<Review[]>(initialReviews);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        console.log('API 호출 시작');
+        const response = await api.get('/api/reviews');
+        console.log('API 응답:', response);
+        
+        // API 응답이 비어있으면 임시 데이터 사용
+        if (!response.data || response.data.length === 0) {
+          console.log('API 응답이 비어있어 임시 데이터 사용');
+          setReviews(initialReviews);
+          return;
+        }
+
+        const formattedReviews = response.data.map(review => ({
+          id: review.idx,
+          title: review.title,
+          author: review.author,
+          date: review.date,
+          location: review.location,
+          likes: review.likes || 0,
+          preview: review.preview || review.content,
+        }));
+        
+        setReviews(formattedReviews);
+      } catch (error) {
+        console.error('API 에러:', error);
+        // API 오류시 임시 데이터 유지
+        setReviews(initialReviews);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  if (isLoading) {
+    return <div>로딩중...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-orange-50">
       {/* 네비게이션 바 */}
@@ -53,40 +101,26 @@ export default function ReviewsPage() {
 
       {/* 메인 컨텐츠 */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 헤더 섹션 */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-amber-900">봉사활동 후기</h1>
-          <Link
-            href="/reviews/write"
-            className="bg-orange-700 text-white px-6 py-3 rounded-md hover:bg-orange-800"
-          >
+          <Link href="/reviews/write" className="bg-orange-700 text-white px-6 py-3 rounded-md hover:bg-orange-800">
             후기 작성하기
           </Link>
         </div>
 
         {/* 후기 목록 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {volunteerReviews.map((review) => (
-            <div 
-              key={review.id} 
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-amber-100"
-            >
-              <h2 className="text-xl font-semibold text-amber-900 mb-3">
-                {review.title}
-              </h2>
+          {reviews.map((review) => (
+            <div key={review.id} className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold text-amber-900 mb-3">{review.title}</h2>
               <div className="text-amber-800 space-y-2 mb-4">
-                <p className="text-sm">✍️ {review.author}</p>
-                <p className="text-sm">📍 {review.location}</p>
-                <p className="text-sm">📅 {review.date}</p>
-                <p className="text-sm">❤️ {review.likes}</p>
+                <p>✍️ {review.author}</p>
+                <p>📍 {review.location}</p>
+                <p>📅 {review.date}</p>
+                <p>❤️ {review.likes}</p>
               </div>
-              <p className="text-gray-600 mb-4 line-clamp-3">
-                {review.preview}
-              </p>
-              <Link
-                href={`/reviews/${review.id}`}
-                className="block text-center bg-orange-100 text-orange-700 px-4 py-2 rounded hover:bg-orange-200"
-              >
+              <p className="text-gray-600 mb-4">{review.preview}</p>
+              <Link href={`/reviews/${review.id}`} className="block text-center bg-orange-100 text-orange-700 px-4 py-2 rounded">
                 자세히 보기
               </Link>
             </div>

@@ -1,3 +1,6 @@
+'use client'
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 import Link from "next/link";
 
 // 임시 데이터
@@ -10,15 +13,7 @@ const volunteerActivities = [
     participants: 5,
     maxParticipants: 10,
   },
-  {
-    id: 2,
-    title: "노인복지관 급식 봉사",
-    location: "서울시 송파구",
-    date: "2024-04-03",
-    participants: 3,
-    maxParticipants: 8,
-  },
-  // ... 더 많은 임시 데이터
+  // ... 기존 데이터
 ];
 
 // 임시 후기 데이터 추가
@@ -40,19 +35,59 @@ const volunteerReviews = [
     location: "서울시 강남구",
     likes: 23,
     preview: "우리 동네 공원을 깨끗하게 만드는데 동참할 수 있어서 뿌듯했습니다..."
-  },
-  {
-    id: 3,
-    title: "유기동물 보호소 봉사 이야기",
-    author: "박하늘",
-    date: "2024-03-22",
-    location: "서울시 마포구",
-    likes: 45,
-    preview: "작은 생명들을 돌보는 시간이 저에게도 큰 위로가 되었습니다..."
-  },
+  }
 ];
 
 export default function Home() {
+  // API로 받아올 데이터를 위한 state
+  const [activities, setActivities] = useState(volunteerActivities);
+  const [reviews, setReviews] = useState(volunteerReviews);
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await api.get('/api/volunteers');
+        // API 응답 데이터를 기존 형식에 맞게 변환
+        const formattedActivities = response.data.map(activity => ({
+          id: activity.idx,
+          title: activity.title,
+          location: activity.location,
+          date: activity.date,
+          participants: 0,  // API에 없는 필드는 기본값 설정
+          maxParticipants: 10,  // API에 없는 필드는 기본값 설정
+        }));
+        setActivities(formattedActivities);
+      } catch (error) {
+        console.error('API 에러:', error);
+      }
+    };
+
+    const fetchReviews = async () => {
+      try {
+        const response = await api.get('/api/reviews');
+        if (!response.data || response.data.length === 0) {
+          setReviews(volunteerReviews);
+          return;
+        }
+        const formattedReviews = response.data.map(review => ({
+          id: review.idx,
+          title: review.title,
+          author: review.author,
+          date: review.date,
+          location: review.location,
+          likes: review.likes || 0,
+          preview: review.preview || review.content,
+        }));
+        setReviews(formattedReviews);
+      } catch (error) {
+        console.error('후기 API 에러:', error);
+      }
+    };
+
+    fetchActivities();
+    fetchReviews();
+  }, []);
+
   return (
     <div className="min-h-screen bg-orange-50">
       {/* 네비게이션 바 */}
@@ -97,7 +132,7 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {volunteerActivities.map((activity) => (
+            {activities.map((activity) => (
               <div key={activity.id} className="bg-warm-gray-50 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-amber-100">
                 <h4 className="text-lg font-semibold text-amber-900 mb-2">{activity.title}</h4>
                 <div className="text-amber-800 space-y-2">
@@ -114,7 +149,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 봉사후기 섹션 수정 */}
+        {/* 봉사후기 섹션 */}
         <section className="mt-16">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-2xl font-semibold text-amber-900">따뜻한 봉사 이야기</h3>
@@ -124,7 +159,7 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {volunteerReviews.map((review) => (
+            {reviews.map((review) => (
               <div 
                 key={review.id} 
                 className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-amber-100"

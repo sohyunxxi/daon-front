@@ -22,6 +22,9 @@ interface Activity {
   createdAt?: string;
 }
 
+// 타입 정의 부분에 API 응답 타입 추가
+type ApiResponse = Activity;
+
 // 임시 데이터는 그대로 두고, 새로운 상태 추가
 export default function VolunteerDetail() {
   const params = useParams();
@@ -33,7 +36,7 @@ export default function VolunteerDetail() {
   useEffect(() => {
     const fetchActivity = async () => {
       try {
-        const response = await api.get(`/api/volunteers/${id}`);
+        const response = await api.get<ApiResponse>(`/api/volunteers/${id}`);
         setActivity({
           ...response.data,
           // API에 없는 필드들은 임시 데이터로 채우기
@@ -143,7 +146,9 @@ export default function VolunteerDetail() {
           <div className="border-t border-amber-100 pt-6">
             <div className="flex justify-between items-center">
               <div className="text-amber-800">
-                <p>현재 {activity.maxParticipants - activity.participants}자리 남았습니다</p>
+                <p>현재 {activity?.maxParticipants && activity?.participants 
+                  ? activity.maxParticipants - activity.participants 
+                  : 0}자리 남았습니다</p>
               </div>
               <div className="flex gap-4">
                 <button

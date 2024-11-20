@@ -14,6 +14,18 @@ interface Review {
   preview: string;
 }
 
+// 기존 Review 인터페이스 아래에 추가
+interface ApiReview {
+  idx: number;
+  title: string;
+  author: string;
+  date: string;
+  location: string;
+  likes?: number;
+  content: string;
+  preview?: string;
+}
+
 // 임시 데이터
 const initialReviews = [
   {
@@ -44,7 +56,7 @@ export default function ReviewsPage() {
     const fetchReviews = async () => {
       try {
         console.log('API 호출 시작');
-        const response = await api.get('/api/reviews');
+        const response = await api.get<ApiReview[]>('/api/reviews');
         console.log('API 응답:', response);
         
         // API 응답이 비어있으면 임시 데이터 사용
@@ -54,7 +66,7 @@ export default function ReviewsPage() {
           return;
         }
 
-        const formattedReviews = response.data.map(review => ({
+        const formattedReviews = response.data.map((review: ApiReview) => ({
           id: review.idx,
           title: review.title,
           author: review.author,

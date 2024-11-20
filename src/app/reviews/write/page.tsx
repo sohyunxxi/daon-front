@@ -4,6 +4,22 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
+interface CreateReviewDto {
+  title: string;
+  location: string;
+  content: string;
+}
+
+interface ApiResponse {
+  idx: number;
+  title: string;
+  location: string;
+  content: string;
+  author: string;
+  date: string;
+  likes: number;
+}
+
 export default function WriteReviewPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -18,7 +34,7 @@ export default function WriteReviewPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await api.post('/api/reviews', formData);
+      const response = await api.post<ApiResponse>('/api/reviews', formData);
       console.log('후기 작성 성공:', response);
       router.push('/reviews'); // 목록 페이지로 이동
     } catch (error) {

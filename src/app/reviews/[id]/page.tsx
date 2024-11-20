@@ -15,6 +15,17 @@ interface Review {
   content: string;
 }
 
+// 기존 Review 인터페이스 아래에 추가
+interface ApiReview {
+  idx: number;
+  title: string;
+  author: string;
+  date: string;
+  location: string;
+  likes?: number;
+  content: string;
+}
+
 // 임시 상세 데이터
 const initialReview = {
   id: 1,
@@ -34,7 +45,7 @@ export default function ReviewDetailPage() {
   useEffect(() => {
     const fetchReview = async () => {
       try {
-        const response = await api.get(`/api/reviews/${params.id}`);
+        const response = await api.get<ApiReview>(`/api/reviews/${params.id}`);
         
         if (!response.data) {
           console.log('API 응답이 비어있어 임시 데이터 사용');

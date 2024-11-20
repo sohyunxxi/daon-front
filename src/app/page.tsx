@@ -38,17 +38,56 @@ const volunteerReviews = [
   }
 ];
 
+// 타입 정의 추가
+interface Activity {
+  id: number;
+  title: string;
+  location: string;
+  date: string;
+  participants: number;
+  maxParticipants: number;
+}
+
+interface Review {
+  id: number;
+  title: string;
+  author: string;
+  date: string;
+  location: string;
+  likes: number;
+  preview: string;
+}
+
+// 기존 타입 정의 아래에 추가
+interface ApiActivity {
+  idx: number;
+  title: string;
+  location: string;
+  date: string;
+}
+
+interface ApiReview {
+  idx: number;
+  title: string;
+  author: string;
+  date: string;
+  location: string;
+  likes?: number;
+  content: string;
+  preview?: string;
+}
+
 export default function Home() {
   // API로 받아올 데이터를 위한 state
-  const [activities, setActivities] = useState(volunteerActivities);
-  const [reviews, setReviews] = useState(volunteerReviews);
+  const [activities, setActivities] = useState<Activity[]>(volunteerActivities);
+  const [reviews, setReviews] = useState<Review[]>(volunteerReviews);
 
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await api.get('/api/volunteers');
+        const response = await api.get<ApiActivity[]>('/api/volunteers');
         // API 응답 데이터를 기존 형식에 맞게 변환
-        const formattedActivities = response.data.map(activity => ({
+        const formattedActivities = response.data.map((activity: ApiActivity) => ({
           id: activity.idx,
           title: activity.title,
           location: activity.location,
@@ -64,12 +103,12 @@ export default function Home() {
 
     const fetchReviews = async () => {
       try {
-        const response = await api.get('/api/reviews');
+        const response = await api.get<ApiReview[]>('/api/reviews');
         if (!response.data || response.data.length === 0) {
           setReviews(volunteerReviews);
           return;
         }
-        const formattedReviews = response.data.map(review => ({
+        const formattedReviews = response.data.map((review: ApiReview) => ({
           id: review.idx,
           title: review.title,
           author: review.author,

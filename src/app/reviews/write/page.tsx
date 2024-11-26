@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 import Link from 'next/link';
 
 interface CreateReviewDto {
@@ -36,7 +36,7 @@ export default function WriteReviewPage() {
     try {
       const response = await api.post<ApiResponse>('/api/reviews', formData);
       console.log('후기 작성 성공:', response);
-      router.push('/reviews'); // 목록 페이지로 이동
+      router.push('/api/reviews'); // 목록 페이지로 이동
     } catch (error) {
       console.error('후기 작성 실패:', error);
       alert('후기 작성에 실패했습니다. 다시 시도해주세요.');

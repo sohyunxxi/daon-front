@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import api from '@/utils/api';
 import { 
   Grid, 
   Card, 
@@ -11,6 +13,7 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import ReviewList from './ReviewList';
 
 interface VolunteerPost {
   idx: number;
@@ -27,26 +30,51 @@ interface VolunteerPost {
   };
 }
 
+interface Review {
+  idx: number;
+  title: string;
+  author: string;
+  date: string;
+  location: string;
+  likes: number;
+  content: string;
+  preview: string;
+  rating: number;
+}
+
 const VolunteerList: React.FC = () => {
+  const router = useRouter();
   const [posts, setPosts] = useState<VolunteerPost[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/volunteer-posts');
-        const data = await response.json();
-        setPosts(data);
-      } catch (error) {
-        console.error('봉사활동 목록을 불러오는데 실패했습니다:', error);
+        const [postsResponse, reviewsResponse] = await Promise.all([
+          api.get('/api/posts'),
+          api.get('/api/reviews')
+        ]);
+
+        setPosts(postsResponse.data);
+        setReviews(reviewsResponse.data);
+      } catch (err) {
+        console.error('API 에러:', err);
+        setError('데이터를 불러오는데 실패했습니다.');
       }
     };
 
-    fetchPosts();
+    fetchData();
   }, []);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid container spacing={3}>
+      <Typography variant="h5" gutterBottom>봉사활동 목록</Typography>
+      <Grid container spacing={3} sx={{ mb: 6 }}>
         {posts.map((post) => (
           <Grid item xs={12} sm={6} md={4} key={post.idx}>
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -79,6 +107,9 @@ const VolunteerList: React.FC = () => {
           </Grid>
         ))}
       </Grid>
+
+      <Typography variant="h5" gutterBottom>최근 리뷰</Typography>
+      <ReviewList reviews={reviews} />
     </Container>
   );
 };

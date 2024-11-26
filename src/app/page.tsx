@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { api } from '@/lib/api';
+import api  from '@/lib/api';
 import Link from "next/link";
 
 // 임시 데이터
@@ -85,7 +85,7 @@ export default function Home() {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await api.get<ApiActivity[]>('/api/volunteers');
+        const response = await api.get<ApiActivity[]>('/api/posts');
         // API 응답 데이터를 기존 형식에 맞게 변환
         const formattedActivities = response.data.map((activity: ApiActivity) => ({
           id: activity.idx,

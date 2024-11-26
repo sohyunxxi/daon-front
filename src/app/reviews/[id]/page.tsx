@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 import Link from 'next/link';
 
 // 타입 정의
@@ -22,7 +22,7 @@ interface ApiReview {
   author: string;
   date: string;
   location: string;
-  likes?: number;
+  likes: number;
   content: string;
 }
 
@@ -44,8 +44,10 @@ export default function ReviewDetailPage() {
 
   useEffect(() => {
     const fetchReview = async () => {
+      if (!params?.id) return;
+      
       try {
-        const response = await api.get<ApiReview>(`/api/reviews/${params.id}`);
+        const response = await api.get<ApiReview>(`/reviews/${params.id}`);
         
         if (!response.data) {
           console.log('API 응답이 비어있어 임시 데이터 사용');
@@ -72,10 +74,8 @@ export default function ReviewDetailPage() {
       }
     };
 
-    if (params.id) {
-      fetchReview();
-    }
-  }, [params.id]);
+    fetchReview();
+  }, [params?.id]);
 
   if (isLoading) {
     return <div>로딩중...</div>;
